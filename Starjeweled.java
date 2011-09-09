@@ -5,6 +5,9 @@
 
 // improvements
 	// go for 4/5 combo first
+	// work on all resolutions
+	// stop key
+	// send units
 
 import javax.swing.*;
 import javax.imageio.*;
@@ -16,18 +19,7 @@ import java.lang.*;
 import java.util.*;
 import java.math.*;
 
-public class Starjeweled {	
-	public static int YELLOW = -4286464;
-	public static int YELLOW2 = -4286976;
-	public static int GREEN = -10160640;
-	public static int BLACK = -11908533;
-	public static int RED = -8382976;
-	public static int PURPLE = -9568080;
-	public static int BLUE = -11159041;
-	
-	public static int samplex = 8;
-	public static int sampley = 24;
-		
+public class Starjeweled {			
 	public static void printPixelRGB(int pixel) {
 		int alpha = (pixel >> 24) & 0xff;
 		int red = (pixel >> 16) & 0xff;
@@ -36,7 +28,8 @@ public class Starjeweled {
 		System.out.println(pixel + " RGB: " + red + ", " + green + ", " + blue);
 	}
 	
-	public static BufferedImage getScreen() throws AWTException {
+	public static BufferedImage getScreen() throws AWTException, IOException {
+//		BufferedImage screen = ImageIO.read(new File("jewels.bmp"));
 		BufferedImage screen = new Robot().createScreenCapture(new Rectangle(742, 67, 384, 384));
 		return screen;
 	}
@@ -56,17 +49,24 @@ public class Starjeweled {
 		char[][] board = new char[8][8];
 		for(int y = 0; y < 8; y++) {
 			for(int x = 0; x < 8; x++) {
-				if(pixels[x*48 + 8][y*48 + 24] == YELLOW) board[x][y] = 'Y';
-				else if(pixels[x*48 + 8][y*48 + 24] == GREEN) board[x][y] = 'G';
-				else if(pixels[x*48 + 8][y*48 + 24] == BLACK) board[x][y] = 'K';
-				else if(pixels[x*48 + 8][y*48 + 24] == RED) board[x][y] = 'R';
-				else if(pixels[x*48 + 8][y*48 + 24] == PURPLE) board[x][y] = 'P';
-				else if(pixels[x*48 + 8][y*48 + 24] == BLUE) board[x][y] = 'B';
-				else if(pixels[x*48 + 8][y*48 + 24] == YELLOW2) board[x][y] = 'Y';
-				System.out.print(board[x][y] + " ");
+				int pixelvalue = 0;
+				for(int xpix = 0; xpix < 16; xpix++) {
+					for(int ypix = 0; ypix < 16; ypix++) {
+						pixelvalue += pixels[x*48 + xpix + 16][y*48 + ypix + 16];
+					}
+				}
+				pixelvalue /= (16*16);
+				if(pixelvalue > 6600000 && pixelvalue < 6700000) board[x][y] = 'Y';
+				else if(pixelvalue > 6000000 && pixelvalue < 6150000) board[x][y] = 'G';
+				else if(pixelvalue > -7250000 && pixelvalue < -7100000) board[x][y] = 'K';
+				else if(pixelvalue > -7800000 && pixelvalue < -7650000) board[x][y] = 'R';
+				else if(pixelvalue > 7000000 && pixelvalue < 7200000) board[x][y] = 'P';
+				else if(pixelvalue > 4650000 && pixelvalue < 4800000) board[x][y] = 'B';
+				// System.out.println(pixelvalue);
+				// System.out.print(board[x][y] + " ");
 			}
 			System.out.println();
-		}		
+		}
 		return board;
 	}
 	public static int[][] determineMove(char[][] board) {
@@ -326,8 +326,6 @@ public class Starjeweled {
 		Thread.currentThread().sleep(5000); // Delay to get back into SC2
 		while(true) {
 			long timein = System.currentTimeMillis();
-
-//			BufferedImage screen = ImageIO.read(new File("jewels.bmp")); // load test screenshot				
 		
 			BufferedImage screen = getScreen(); // captures screen of jewels
 			int[][] pixels = convertToArray(screen); // converts BufferedImage into pixel array
